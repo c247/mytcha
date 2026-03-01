@@ -14,6 +14,7 @@ import { GeoSearchInput } from "@/components/geo-search-input"
 import type { GeoSearchResult } from "@/lib/geo-search"
 import { getOrCreateCupColors } from "@/lib/pastel-cups"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { isInBayArea } from "@/lib/bay-area"
 
 interface UserLeaderboardProps {
   selectedSpot: number | null
@@ -147,6 +148,12 @@ export function UserLeaderboard({ selectedSpot, onSpotClick, uid }: UserLeaderbo
   }
 
   const handleAddSpotFromGeoSearch = async (result: GeoSearchResult) => {
+    if (!isInBayArea(result.lat, result.lng)) {
+      setError("Only Bay Area spots can be added.")
+      setSuccess(null)
+      return
+    }
+
     if (!userRankings.find((r) => r.name === result.name && r.location === result.location)) {
       setLoading(true)
       setError(null)
@@ -294,7 +301,7 @@ export function UserLeaderboard({ selectedSpot, onSpotClick, uid }: UserLeaderbo
       </div>
 
       <Dialog open={showGeoSearch} onOpenChange={setShowGeoSearch}>
-        <DialogContent className="max-w-md rounded-2xl border-2 border-primary/40 bg-gradient-to-b from-[#f6fff3] to-white p-5 shadow-2xl">
+        <DialogContent className="w-[min(92vw,48rem)] max-w-3xl overflow-hidden rounded-2xl border-2 border-primary/40 bg-gradient-to-b from-[#f6fff3] to-white p-5 shadow-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-primary">
               <Sparkles className="h-4 w-4" />
@@ -304,7 +311,7 @@ export function UserLeaderboard({ selectedSpot, onSpotClick, uid }: UserLeaderbo
               Pick your next favorite cafe.
             </DialogDescription>
           </DialogHeader>
-          <div className="rounded-xl border border-primary/20 bg-white/80 p-3">
+          <div className="w-full overflow-hidden rounded-xl border border-primary/20 bg-white/80 p-3">
             <GeoSearchInput
               onSelect={handleAddSpotFromGeoSearch}
               onCancel={() => setShowGeoSearch(false)}

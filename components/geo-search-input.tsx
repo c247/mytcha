@@ -51,8 +51,8 @@ export function GeoSearchInput({ onSelect, onCancel, disabled }: GeoSearchInputP
   }
 
   return (
-    <div className="space-y-2">
-      <div className="flex gap-2">
+    <div className="w-full space-y-2 overflow-hidden">
+      <div className="flex w-full gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
           <Input
@@ -83,25 +83,27 @@ export function GeoSearchInput({ onSelect, onCancel, disabled }: GeoSearchInputP
         </p>
       )}
       {results.length > 0 && (
-        <div className="border border-border rounded-lg divide-y divide-border max-h-48 overflow-y-auto">
+        <div className="w-full overflow-hidden rounded-lg border border-border">
+          <div className="max-h-56 divide-y divide-border overflow-y-auto overflow-x-hidden">
           {results.map((r, i) => (
             <button
               key={`${r.lat}-${r.lng}-${i}`}
               type="button"
               onClick={() => onSelect(r)}
-              className="w-full text-left px-3 py-2 hover:bg-accent/50 transition-colors flex items-start gap-2"
+              className="flex w-full items-start gap-2 overflow-hidden px-3 py-2 text-left transition-colors hover:bg-accent/50"
             >
               <MapPin className="size-4 text-muted-foreground flex-shrink-0 mt-0.5" />
               <div className="min-w-0">
-                <p className="text-sm font-medium text-foreground truncate">
+                <p className="truncate text-sm font-medium text-foreground">
                   {r.name}
                 </p>
-                <p className="text-xs text-muted-foreground truncate">
+                <p className="line-clamp-2 break-words text-xs text-muted-foreground">
                   {r.location}
                 </p>
               </div>
             </button>
           ))}
+          </div>
         </div>
       )}
     </div>

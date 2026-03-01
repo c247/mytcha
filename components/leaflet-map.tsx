@@ -7,17 +7,36 @@ import { useState, useEffect, useRef, type MutableRefObject } from "react"
 import { getGlobalTop10, subscribeMyRankings, type Ranking, type GlobalSpot } from "@/lib/firebase-rankings"
 import { Loader2 } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { BAY_AREA_BOUNDS } from "@/lib/bay-area"
 
 // Fix for Leaflet default icons in Next.js
 delete (L.Icon.Default.prototype as any)._getIconUrl
 
-const matchaCupIcon = L.icon({
-  iconUrl: "/matcha.svg",
-  iconSize: [46, 46],
-  iconAnchor: [23, 40],
-  popupAnchor: [0, -34],
-  className: "matcha-cup-pin",
-})
+function getPinTint(rank: number) {
+  const tints = [
+    "hue-rotate(-18deg) saturate(0.85) brightness(1.08)",
+    "hue-rotate(-6deg) saturate(0.9) brightness(1.08)",
+    "hue-rotate(8deg) saturate(0.9) brightness(1.08)",
+    "hue-rotate(20deg) saturate(0.85) brightness(1.08)",
+    "hue-rotate(48deg) saturate(0.9) brightness(1.05)",
+    "hue-rotate(88deg) saturate(0.9) brightness(1.04)",
+    "hue-rotate(130deg) saturate(0.95) brightness(1.03)",
+    "hue-rotate(154deg) saturate(0.95) brightness(1.04)",
+    "hue-rotate(174deg) saturate(0.95) brightness(1.05)",
+  ]
+  return tints[(Math.max(rank, 1) - 1) % tints.length]
+}
+
+function getPastelPinIcon(rank: number) {
+  const tint = getPinTint(rank)
+  return L.divIcon({
+    className: "matcha-pin-div",
+    html: `<img src="/matcha.svg" alt="" style="width:46px;height:46px;filter:${tint} drop-shadow(0 2px 3px rgba(0,0,0,0.25));" />`,
+    iconSize: [46, 46],
+    iconAnchor: [23, 40],
+    popupAnchor: [0, -34],
+  })
+}
 
 interface LeafletMapProps {
   selectedSpot: number | null
@@ -38,10 +57,9 @@ function MapPopupContent({
       <button
         type="button"
         onClick={onOpenDetails}
-        className="flex items-center gap-2 text-left"
+        className="text-left"
       >
-        <img src="/matcha.svg" alt="" className="h-7 w-7 shrink-0" />
-        <span className="text-base font-bold text-primary">{spotName}</span>
+        <span className="text-[12px] font-bold leading-snug text-primary">{spotName}</span>
       </button>
     </div>
   )
@@ -49,8 +67,14 @@ function MapPopupContent({
 
 function MapBoundsController({ bayAreaBounds }: { bayAreaBounds: LatLngExpression[] }) {
   const map = useMap()
+  const initialized = useRef(false)
   useEffect(() => {
-    map.setMaxBounds(L.latLngBounds(bayAreaBounds as any))
+    const bounds = L.latLngBounds(bayAreaBounds as any)
+    map.setMaxBounds(bounds.pad(0.08))
+    if (!initialized.current) {
+      map.fitBounds(bounds, { padding: [18, 18] })
+      initialized.current = true
+    }
   }, [map, bayAreaBounds])
   return null
 }
@@ -116,11 +140,8 @@ export default function LeafletMap({ selectedSpot, onSpotClick, displayMode, uid
   }, [displayMode])
 
   // Bay Area center and bounds
-  const bayAreaCenter: LatLngExpression = [37.7749, -122.4194]
-  const bayAreaBounds: LatLngExpression[] = [
-    [37.25, -122.55],
-    [38.15, -121.85],
-  ]
+  const bayAreaCenter: LatLngExpression = [37.72, -122.25]
+  const bayAreaBounds: LatLngExpression[] = BAY_AREA_BOUNDS
 
   // Get the spots to display based on mode
   const spotsToDisplay = displayMode === "my" 
@@ -172,7 +193,7 @@ export default function LeafletMap({ selectedSpot, onSpotClick, displayMode, uid
             <Marker
               key={`${spotName}-${spotLocation}-${index}`}
               position={[lat, lng]}
-              icon={matchaCupIcon}
+              icon={getPastelPinIcon(spotRank)}
               ref={(marker) => {
                 markerRefs.current[spotRank] = marker
               }}
@@ -180,7 +201,7 @@ export default function LeafletMap({ selectedSpot, onSpotClick, displayMode, uid
                 click: () => onSpotClick(spotRank),
               }}
             >
-              <Popup className="matcha-popup" minWidth={260} maxWidth={320}>
+              <Popup className="matcha-popup" minWidth={180} maxWidth={240} closeButton={false}>
                 <MapPopupContent
                   spotName={spotName}
                   onOpenDetails={() => openSpotDetails(spotName, spotLocation, spotRank)}
@@ -194,8 +215,7 @@ export default function LeafletMap({ selectedSpot, onSpotClick, displayMode, uid
       <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
         <DialogContent className="max-w-md rounded-2xl border-2 border-primary/40 bg-gradient-to-b from-[#f6fff3] to-white p-5 shadow-2xl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-primary">
-              <img src="/matcha.svg" alt="" className="h-6 w-6" />
+            <DialogTitle className="text-primary">
               {activeSpot ? `#${activeSpot.rank} ${activeSpot.name}` : "Matcha Spot"}
             </DialogTitle>
           </DialogHeader>

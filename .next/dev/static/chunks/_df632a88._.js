@@ -12,7 +12,7 @@ __turbopack_context__.v((parentImport) => {
 __turbopack_context__.v((parentImport) => {
     return Promise.all([
   "static/chunks/node_modules_f858aecf._.js",
-  "static/chunks/components_leaflet-map_tsx_89c6d53a._.js",
+  "static/chunks/_d0b9614f._.js",
   {
     "path": "static/chunks/node_modules_leaflet_dist_leaflet_ef5f0413.css",
     "included": [

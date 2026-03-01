@@ -17,6 +17,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$firebase$2d$rankings$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/firebase-rankings.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/loader-circle.js [app-client] (ecmascript) <export default as Loader2>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/ui/dialog.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$bay$2d$area$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/bay-area.ts [app-client] (ecmascript)");
 ;
 var _s = __turbopack_context__.k.signature(), _s1 = __turbopack_context__.k.signature(), _s2 = __turbopack_context__.k.signature();
 "use client";
@@ -27,58 +28,65 @@ var _s = __turbopack_context__.k.signature(), _s1 = __turbopack_context__.k.sign
 ;
 ;
 ;
+;
 // Fix for Leaflet default icons in Next.js
 delete __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$leaflet$2f$dist$2f$leaflet$2d$src$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].Icon.Default.prototype._getIconUrl;
-const matchaCupIcon = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$leaflet$2f$dist$2f$leaflet$2d$src$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].icon({
-    iconUrl: "/matcha.svg",
-    iconSize: [
-        46,
-        46
-    ],
-    iconAnchor: [
-        23,
-        40
-    ],
-    popupAnchor: [
-        0,
-        -34
-    ],
-    className: "matcha-cup-pin"
-});
+function getPinTint(rank) {
+    const tints = [
+        "hue-rotate(-18deg) saturate(0.85) brightness(1.08)",
+        "hue-rotate(-6deg) saturate(0.9) brightness(1.08)",
+        "hue-rotate(8deg) saturate(0.9) brightness(1.08)",
+        "hue-rotate(20deg) saturate(0.85) brightness(1.08)",
+        "hue-rotate(48deg) saturate(0.9) brightness(1.05)",
+        "hue-rotate(88deg) saturate(0.9) brightness(1.04)",
+        "hue-rotate(130deg) saturate(0.95) brightness(1.03)",
+        "hue-rotate(154deg) saturate(0.95) brightness(1.04)",
+        "hue-rotate(174deg) saturate(0.95) brightness(1.05)"
+    ];
+    return tints[(Math.max(rank, 1) - 1) % tints.length];
+}
+function getPastelPinIcon(rank) {
+    const tint = getPinTint(rank);
+    return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$leaflet$2f$dist$2f$leaflet$2d$src$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].divIcon({
+        className: "matcha-pin-div",
+        html: `<img src="/matcha.svg" alt="" style="width:46px;height:46px;filter:${tint} drop-shadow(0 2px 3px rgba(0,0,0,0.25));" />`,
+        iconSize: [
+            46,
+            46
+        ],
+        iconAnchor: [
+            23,
+            40
+        ],
+        popupAnchor: [
+            0,
+            -34
+        ]
+    });
+}
 function MapPopupContent({ spotName, onOpenDetails }) {
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "text-sm",
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
             type: "button",
             onClick: onOpenDetails,
-            className: "flex items-center gap-2 text-left",
-            children: [
-                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
-                    src: "/matcha.svg",
-                    alt: "",
-                    className: "h-7 w-7 shrink-0"
-                }, void 0, false, {
-                    fileName: "[project]/components/leaflet-map.tsx",
-                    lineNumber: 43,
-                    columnNumber: 9
-                }, this),
-                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                    className: "text-base font-bold text-primary",
-                    children: spotName
-                }, void 0, false, {
-                    fileName: "[project]/components/leaflet-map.tsx",
-                    lineNumber: 44,
-                    columnNumber: 9
-                }, this)
-            ]
-        }, void 0, true, {
+            className: "text-left",
+            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                className: "text-[12px] font-bold leading-snug text-primary",
+                children: spotName
+            }, void 0, false, {
+                fileName: "[project]/components/leaflet-map.tsx",
+                lineNumber: 62,
+                columnNumber: 9
+            }, this)
+        }, void 0, false, {
             fileName: "[project]/components/leaflet-map.tsx",
-            lineNumber: 38,
+            lineNumber: 57,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/components/leaflet-map.tsx",
-        lineNumber: 37,
+        lineNumber: 56,
         columnNumber: 5
     }, this);
 }
@@ -86,9 +94,20 @@ _c = MapPopupContent;
 function MapBoundsController({ bayAreaBounds }) {
     _s();
     const map = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMap"])();
+    const initialized = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(false);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "MapBoundsController.useEffect": ()=>{
-            map.setMaxBounds(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$leaflet$2f$dist$2f$leaflet$2d$src$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].latLngBounds(bayAreaBounds));
+            const bounds = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$leaflet$2f$dist$2f$leaflet$2d$src$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].latLngBounds(bayAreaBounds);
+            map.setMaxBounds(bounds.pad(0.08));
+            if (!initialized.current) {
+                map.fitBounds(bounds, {
+                    padding: [
+                        18,
+                        18
+                    ]
+                });
+                initialized.current = true;
+            }
         }
     }["MapBoundsController.useEffect"], [
         map,
@@ -96,7 +115,7 @@ function MapBoundsController({ bayAreaBounds }) {
     ]);
     return null;
 }
-_s(MapBoundsController, "IoceErwr5KVGS9kN4RQ1bOkYMAg=", false, function() {
+_s(MapBoundsController, "qlz6olvaJ0SOzege3Z0txLy0Av4=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMap"]
     ];
@@ -183,19 +202,10 @@ function LeafletMap({ selectedSpot, onSpotClick, displayMode, uid }) {
     ]);
     // Bay Area center and bounds
     const bayAreaCenter = [
-        37.7749,
-        -122.4194
+        37.72,
+        -122.25
     ];
-    const bayAreaBounds = [
-        [
-            37.25,
-            -122.55
-        ],
-        [
-            38.15,
-            -121.85
-        ]
-    ];
+    const bayAreaBounds = __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$bay$2d$area$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["BAY_AREA_BOUNDS"];
     // Get the spots to display based on mode
     const spotsToDisplay = displayMode === "my" ? myRankings.filter((r)=>r.lat != null && r.lng != null) : globalTop10.filter((s)=>s.lat != null && s.lng != null);
     const openSpotDetails = (name, location, rank)=>{
@@ -223,7 +233,7 @@ function LeafletMap({ selectedSpot, onSpotClick, displayMode, uid }) {
                         bayAreaBounds: bayAreaBounds
                     }, void 0, false, {
                         fileName: "[project]/components/leaflet-map.tsx",
-                        lineNumber: 144,
+                        lineNumber: 165,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(MapSelectionController, {
@@ -232,7 +242,7 @@ function LeafletMap({ selectedSpot, onSpotClick, displayMode, uid }) {
                         spotsLength: spotsToDisplay.length
                     }, void 0, false, {
                         fileName: "[project]/components/leaflet-map.tsx",
-                        lineNumber: 145,
+                        lineNumber: 166,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$TileLayer$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TileLayer"], {
@@ -240,7 +250,7 @@ function LeafletMap({ selectedSpot, onSpotClick, displayMode, uid }) {
                         attribution: '© <a href="https://carto.com/about-carto/">CARTO</a>'
                     }, void 0, false, {
                         fileName: "[project]/components/leaflet-map.tsx",
-                        lineNumber: 150,
+                        lineNumber: 171,
                         columnNumber: 9
                     }, this),
                     loading && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -250,7 +260,7 @@ function LeafletMap({ selectedSpot, onSpotClick, displayMode, uid }) {
                                 className: "size-5 animate-spin text-muted-foreground"
                             }, void 0, false, {
                                 fileName: "[project]/components/leaflet-map.tsx",
-                                lineNumber: 157,
+                                lineNumber: 178,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -258,13 +268,13 @@ function LeafletMap({ selectedSpot, onSpotClick, displayMode, uid }) {
                                 children: "Loading..."
                             }, void 0, false, {
                                 fileName: "[project]/components/leaflet-map.tsx",
-                                lineNumber: 158,
+                                lineNumber: 179,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/leaflet-map.tsx",
-                        lineNumber: 156,
+                        lineNumber: 177,
                         columnNumber: 11
                     }, this),
                     spotsToDisplay.map((spot, index)=>{
@@ -278,7 +288,7 @@ function LeafletMap({ selectedSpot, onSpotClick, displayMode, uid }) {
                                 lat,
                                 lng
                             ],
-                            icon: matchaCupIcon,
+                            icon: getPastelPinIcon(spotRank),
                             ref: (marker)=>{
                                 markerRefs.current[spotRank] = marker;
                             },
@@ -287,31 +297,32 @@ function LeafletMap({ selectedSpot, onSpotClick, displayMode, uid }) {
                             },
                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$Popup$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Popup"], {
                                 className: "matcha-popup",
-                                minWidth: 260,
-                                maxWidth: 320,
+                                minWidth: 180,
+                                maxWidth: 240,
+                                closeButton: false,
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(MapPopupContent, {
                                     spotName: spotName,
                                     onOpenDetails: ()=>openSpotDetails(spotName, spotLocation, spotRank)
                                 }, void 0, false, {
                                     fileName: "[project]/components/leaflet-map.tsx",
-                                    lineNumber: 184,
+                                    lineNumber: 205,
                                     columnNumber: 17
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/leaflet-map.tsx",
-                                lineNumber: 183,
+                                lineNumber: 204,
                                 columnNumber: 15
                             }, this)
                         }, `${spotName}-${spotLocation}-${index}`, false, {
                             fileName: "[project]/components/leaflet-map.tsx",
-                            lineNumber: 172,
+                            lineNumber: 193,
                             columnNumber: 13
                         }, this);
                     })
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/leaflet-map.tsx",
-                lineNumber: 137,
+                lineNumber: 158,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -322,27 +333,16 @@ function LeafletMap({ selectedSpot, onSpotClick, displayMode, uid }) {
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogHeader"], {
                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogTitle"], {
-                                className: "flex items-center gap-2 text-primary",
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
-                                        src: "/matcha.svg",
-                                        alt: "",
-                                        className: "h-6 w-6"
-                                    }, void 0, false, {
-                                        fileName: "[project]/components/leaflet-map.tsx",
-                                        lineNumber: 198,
-                                        columnNumber: 15
-                                    }, this),
-                                    activeSpot ? `#${activeSpot.rank} ${activeSpot.name}` : "Matcha Spot"
-                                ]
-                            }, void 0, true, {
+                                className: "text-primary",
+                                children: activeSpot ? `#${activeSpot.rank} ${activeSpot.name}` : "Matcha Spot"
+                            }, void 0, false, {
                                 fileName: "[project]/components/leaflet-map.tsx",
-                                lineNumber: 197,
+                                lineNumber: 218,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/leaflet-map.tsx",
-                            lineNumber: 196,
+                            lineNumber: 217,
                             columnNumber: 11
                         }, this),
                         activeSpot && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -350,24 +350,24 @@ function LeafletMap({ selectedSpot, onSpotClick, displayMode, uid }) {
                             children: activeSpot.location
                         }, void 0, false, {
                             fileName: "[project]/components/leaflet-map.tsx",
-                            lineNumber: 203,
+                            lineNumber: 223,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/leaflet-map.tsx",
-                    lineNumber: 195,
+                    lineNumber: 216,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/leaflet-map.tsx",
-                lineNumber: 194,
+                lineNumber: 215,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/leaflet-map.tsx",
-        lineNumber: 136,
+        lineNumber: 157,
         columnNumber: 5
     }, this);
 }
