@@ -29,6 +29,10 @@ export type Ranking = RankingData & {
   id: string
 }
 
+export type UserProfile = {
+  username?: string
+}
+
 // A single spot stored in the global collection with a running count
 export type GlobalSpot = {
   name: string
@@ -110,6 +114,27 @@ export async function claimUsername(uid: string, usernameRaw: string) {
   })
 
   return username
+}
+
+/**
+ * Check if username is available
+ */
+export async function isUsernameAvailable(usernameRaw: string) {
+  const username = usernameRaw.trim().toLowerCase()
+  if (!/^[a-z0-9_]{3,20}$/.test(username)) {
+    return false
+  }
+  const snap = await getDoc(doc(db, "usernames", username))
+  return !snap.exists()
+}
+
+/**
+ * Get a user's profile doc
+ */
+export async function getUserProfile(uid: string): Promise<UserProfile | null> {
+  const snap = await getDoc(doc(db, "users", uid))
+  if (!snap.exists()) return null
+  return snap.data() as UserProfile
 }
 
 /**

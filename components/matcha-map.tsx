@@ -5,6 +5,7 @@ import dynamic from "next/dynamic"
 import { CombinedLeaderboard } from "./combined-leaderboard"
 import { auth } from "@/lib/firebase"
 import { onAuthStateChanged } from "firebase/auth"
+import type { Ranking } from "@/lib/firebase-rankings"
 
 // Dynamically import the Leaflet map component to avoid SSR issues
 const LeafletMap = dynamic(() => import("./leaflet-map"), { ssr: false })
@@ -13,7 +14,8 @@ export function MatchaMap() {
   const [selectedSpot, setSelectedSpot] = useState<number | null>(null)
   const [uid, setUid] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
-  const [displayMode, setDisplayMode] = useState<"my" | "global">("my")
+  const [displayMode, setDisplayMode] = useState<"my" | "global" | "search">("my")
+  const [searchRankings, setSearchRankings] = useState<Ranking[]>([])
 
   useEffect(() => setMounted(true), [])
 
@@ -49,7 +51,13 @@ export function MatchaMap() {
       <div className="grid h-full min-h-[70vh] grid-cols-1 gap-5 lg:grid-cols-[2fr_1fr]">
         {/* Map panel */}
         <div className="min-h-[420px] overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-          <LeafletMap selectedSpot={selectedSpot} onSpotClick={handleSpotClick} displayMode={displayMode} uid={uid} />
+          <LeafletMap
+            selectedSpot={selectedSpot}
+            onSpotClick={handleSpotClick}
+            displayMode={displayMode}
+            uid={uid}
+            searchRankings={searchRankings}
+          />
         </div>
 
         {/* Combined leaderboard panel */}
@@ -59,6 +67,7 @@ export function MatchaMap() {
             onSpotClick={handleSpotClick}
             uid={uid}
             onDisplayModeChange={setDisplayMode}
+            onSearchRankingsChange={setSearchRankings}
           />
         </div>
       </div>

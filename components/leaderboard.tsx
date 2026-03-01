@@ -112,15 +112,15 @@ export const GlobalLeaderboard = forwardRef<GlobalLeaderboardRef, GlobalLeaderbo
                   <div className="flex items-start gap-3">
                     <div className="flex-shrink-0">
                       <div
-                        className="relative flex h-10 w-10 items-center justify-center"
+                        className="relative flex h-12 w-12 items-center justify-center"
                       >
                         <img
                           src="/matcha.svg"
                           alt=""
-                          className="h-9 w-9 drop-shadow-[0_1px_2px_rgba(0,0,0,0.25)]"
+                          className="h-11 w-11 drop-shadow-[0_1px_2px_rgba(0,0,0,0.25)]"
                           style={{ filter: getCupTint(cupColors[`${spot.name}|${spot.location}`] ?? "#FFE5EC") }}
                         />
-                        <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground shadow">
+                        <span className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground shadow">
                           {rank}
                         </span>
                       </div>

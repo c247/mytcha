@@ -3,12 +3,15 @@
 import { useState, useRef } from "react"
 import { UserLeaderboard } from "./user-leaderboard"
 import { GlobalLeaderboard, type GlobalLeaderboardRef } from "./leaderboard"
+import { SearchRankings } from "./search-rankings"
+import type { Ranking } from "@/lib/firebase-rankings"
 
 interface CombinedLeaderboardProps {
   selectedSpot: number | null
   onSpotClick: (spotRank: number) => void
   uid: string | null
-  onDisplayModeChange?: (mode: "my" | "global") => void
+  onDisplayModeChange?: (mode: "my" | "global" | "search") => void
+  onSearchRankingsChange?: (rankings: Ranking[]) => void
 }
 
 export function CombinedLeaderboard({
@@ -16,17 +19,21 @@ export function CombinedLeaderboard({
   onSpotClick,
   uid,
   onDisplayModeChange,
+  onSearchRankingsChange,
 }: CombinedLeaderboardProps) {
-  const [displayMode, setDisplayMode] = useState<"my" | "global">("my")
+  const [displayMode, setDisplayMode] = useState<"my" | "global" | "search">("my")
   const globalLeaderboardRef = useRef<GlobalLeaderboardRef>(null)
 
-  const handleDisplayModeChange = (mode: "my" | "global") => {
+  const handleDisplayModeChange = (mode: "my" | "global" | "search") => {
     setDisplayMode(mode)
     onDisplayModeChange?.(mode)
     
     // Refresh global leaderboard when switching to it
     if (mode === "global" && globalLeaderboardRef.current) {
       globalLeaderboardRef.current.refresh()
+    }
+    if (mode !== "search") {
+      onSearchRankingsChange?.([])
     }
   }
 
@@ -54,6 +61,16 @@ export function CombinedLeaderboard({
         >
           Bay Top 10
         </button>
+        <button
+          onClick={() => handleDisplayModeChange("search")}
+          className={`flex-1 px-3 py-3 text-xs font-semibold transition-all border-b-2 ${
+            displayMode === "search"
+              ? "bg-primary/10 text-primary border-b-primary"
+              : "bg-transparent text-foreground border-b-transparent hover:bg-accent/30"
+          }`}
+        >
+          Search
+        </button>
       </div>
 
       {/* Content */}
@@ -74,8 +91,14 @@ export function CombinedLeaderboard({
               </div>
             </div>
           )
-        ) : (
+        ) : displayMode === "global" ? (
           <GlobalLeaderboard ref={globalLeaderboardRef} selectedSpot={selectedSpot} onSpotClick={onSpotClick} />
+        ) : (
+          <SearchRankings
+            selectedSpot={selectedSpot}
+            onSpotClick={onSpotClick}
+            onResultsChange={onSearchRankingsChange}
+          />
         )}
       </div>
     </div>

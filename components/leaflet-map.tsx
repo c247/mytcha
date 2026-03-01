@@ -8,6 +8,7 @@ import { getGlobalTop10, subscribeMyRankings, type Ranking, type GlobalSpot } fr
 import { Loader2 } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { BAY_AREA_BOUNDS } from "@/lib/bay-area"
+import { getOrCreateCupColors } from "@/lib/pastel-cups"
 
 // Fix for Leaflet default icons in Next.js
 delete (L.Icon.Default.prototype as any)._getIconUrl
@@ -27,8 +28,22 @@ function getPinTint(rank: number) {
   return tints[(Math.max(rank, 1) - 1) % tints.length]
 }
 
-function getPastelPinIcon(rank: number) {
-  const tint = getPinTint(rank)
+function getTintForPastelColor(color: string) {
+  const tintMap: Record<string, string> = {
+    "#FFE5EC": "hue-rotate(-18deg) saturate(0.85) brightness(1.08)",
+    "#FDE2E4": "hue-rotate(-6deg) saturate(0.9) brightness(1.08)",
+    "#FEECD2": "hue-rotate(8deg) saturate(0.9) brightness(1.08)",
+    "#FFF1B6": "hue-rotate(20deg) saturate(0.85) brightness(1.08)",
+    "#DFF7E2": "hue-rotate(48deg) saturate(0.9) brightness(1.05)",
+    "#D9F2FF": "hue-rotate(88deg) saturate(0.9) brightness(1.04)",
+    "#E3E0FF": "hue-rotate(130deg) saturate(0.95) brightness(1.03)",
+    "#F0E4FF": "hue-rotate(154deg) saturate(0.95) brightness(1.04)",
+    "#FFDFF5": "hue-rotate(174deg) saturate(0.95) brightness(1.05)",
+  }
+  return tintMap[color] ?? "hue-rotate(24deg) saturate(0.9) brightness(1.06)"
+}
+
+function getPastelPinIcon(tint: string) {
   return L.divIcon({
     className: "matcha-pin-div",
     html: `<img src="/matcha.svg" alt="" style="width:46px;height:46px;filter:${tint} drop-shadow(0 2px 3px rgba(0,0,0,0.25));" />`,
@@ -41,8 +56,9 @@ function getPastelPinIcon(rank: number) {
 interface LeafletMapProps {
   selectedSpot: number | null
   onSpotClick: (spotRank: number) => void
-  displayMode: "my" | "global"
+  displayMode: "my" | "global" | "search"
   uid: string | null
+  searchRankings?: Ranking[]
 }
 
 function MapPopupContent({
@@ -101,9 +117,10 @@ function MapSelectionController({
   return null
 }
 
-export default function LeafletMap({ selectedSpot, onSpotClick, displayMode, uid }: LeafletMapProps) {
+export default function LeafletMap({ selectedSpot, onSpotClick, displayMode, uid, searchRankings = [] }: LeafletMapProps) {
   const [myRankings, setMyRankings] = useState<Ranking[]>([])
   const [globalTop10, setGlobalTop10] = useState<GlobalSpot[]>([])
+  const [myCupColors, setMyCupColors] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(false)
   const [detailsOpen, setDetailsOpen] = useState(false)
   const [activeSpot, setActiveSpot] = useState<{ name: string; location: string; rank: number } | null>(null)
@@ -139,6 +156,12 @@ export default function LeafletMap({ selectedSpot, onSpotClick, displayMode, uid
     }
   }, [displayMode])
 
+  useEffect(() => {
+    if (!uid || displayMode !== "my") return
+    const keys = myRankings.map((r) => r.id)
+    setMyCupColors(getOrCreateCupColors(`mytcha-cups-${uid}`, keys))
+  }, [uid, displayMode, myRankings])
+
   // Bay Area center and bounds
   const bayAreaCenter: LatLngExpression = [37.72, -122.25]
   const bayAreaBounds: LatLngExpression[] = BAY_AREA_BOUNDS
@@ -146,7 +169,9 @@ export default function LeafletMap({ selectedSpot, onSpotClick, displayMode, uid
   // Get the spots to display based on mode
   const spotsToDisplay = displayMode === "my" 
     ? myRankings.filter(r => r.lat != null && r.lng != null)
-    : globalTop10.filter(s => s.lat != null && s.lng != null)
+    : displayMode === "global"
+      ? globalTop10.filter(s => s.lat != null && s.lng != null)
+      : searchRankings.filter(r => r.lat != null && r.lng != null)
 
   const openSpotDetails = (name: string, location: string, rank: number) => {
     setActiveSpot({ name, location, rank })
@@ -187,13 +212,18 @@ export default function LeafletMap({ selectedSpot, onSpotClick, displayMode, uid
           const spotLocation = spot.location
           const spotRank = displayMode === "my" 
             ? (spot as Ranking).ranking
-            : (index + 1)
+            : displayMode === "global"
+              ? (index + 1)
+              : (spot as Ranking).ranking
+          const pinTint = displayMode === "my"
+            ? getTintForPastelColor(myCupColors[(spot as Ranking).id] ?? "#FFE5EC")
+            : getPinTint(spotRank)
 
           return (
             <Marker
               key={`${spotName}-${spotLocation}-${index}`}
               position={[lat, lng]}
-              icon={getPastelPinIcon(spotRank)}
+              icon={getPastelPinIcon(pinTint)}
               ref={(marker) => {
                 markerRefs.current[spotRank] = marker
               }}
