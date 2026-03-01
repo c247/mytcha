@@ -75,8 +75,8 @@
 }
 
 @theme inline {
-  --font-sans: var(--font-sans, 'Nunito'), 'Nunito', sans-serif;
-  --font-display: var(--font-display, 'Quicksand'), 'Quicksand', sans-serif;
+  --font-sans: var(--font-retro, 'Press Start 2P'), 'Press Start 2P', monospace;
+  --font-display: var(--font-retro, 'Press Start 2P'), 'Press Start 2P', monospace;
   --font-mono: 'Geist Mono', 'Geist Mono Fallback';
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -134,6 +134,7 @@
 .leaflet-popup-content-wrapper {
   background-color: var(--card);
   color: var(--foreground);
+  font-family: var(--font-sans), monospace !important;
   border-radius: 0.5rem;
   border: 1px solid var(--border);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -147,6 +148,16 @@
 .leaflet-popup-content {
   margin: 0;
   width: auto !important;
+}
+
+.leaflet-popup.matcha-popup .leaflet-popup-content-wrapper {
+  border-radius: 0.9rem;
+  padding: 0.15rem;
+}
+
+.leaflet-popup.matcha-popup .leaflet-popup-content {
+  margin: 0.35rem 0.55rem;
+  min-width: 250px;
 }
 
 .leaflet-popup-content p {

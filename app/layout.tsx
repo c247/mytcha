@@ -1,14 +1,17 @@
 import type { Metadata } from 'next'
-import { Nunito, Quicksand } from 'next/font/google'
+import { Press_Start_2P } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
-const nunito = Nunito({ subsets: ["latin"], variable: "--font-sans" });
-const quicksand = Quicksand({ subsets: ["latin"], variable: "--font-display" });
+const pressStart = Press_Start_2P({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-retro",
+});
 
 export const metadata: Metadata = {
-  title: 'Matcha Map – Best Matcha in the Bay Area',
-  description: 'Discover the top matcha spots in SF, Oakland, Berkeley, San Jose and beyond. Curated list and interactive Bay Area map.',
+  title: 'mytcha – Best Matcha in the Bay Area',
+  description: 'Discover top matcha spots in SF, Oakland, Berkeley, San Jose and beyond with mytcha.',
   icons: {
     icon: [
       {
@@ -35,7 +38,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${nunito.variable} ${quicksand.variable} font-sans antialiased`}>
+      <body className={`${pressStart.className} ${pressStart.variable} font-sans antialiased`}>
         {children}
         <Analytics />
       </body>

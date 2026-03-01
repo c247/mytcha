@@ -3,16 +3,20 @@
 import L, { LatLngExpression } from "leaflet"
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet"
 import "leaflet/dist/leaflet.css"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef, type MutableRefObject } from "react"
 import { getGlobalTop10, subscribeMyRankings, type Ranking, type GlobalSpot } from "@/lib/firebase-rankings"
 import { Loader2 } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 // Fix for Leaflet default icons in Next.js
 delete (L.Icon.Default.prototype as any)._getIconUrl
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
-  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
-  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+
+const matchaCupIcon = L.icon({
+  iconUrl: "/matcha.svg",
+  iconSize: [46, 46],
+  iconAnchor: [23, 40],
+  popupAnchor: [0, -34],
+  className: "matcha-cup-pin",
 })
 
 interface LeafletMapProps {
@@ -20,6 +24,27 @@ interface LeafletMapProps {
   onSpotClick: (spotRank: number) => void
   displayMode: "my" | "global"
   uid: string | null
+}
+
+function MapPopupContent({
+  spotName,
+  onOpenDetails,
+}: {
+  spotName: string
+  onOpenDetails: () => void
+}) {
+  return (
+    <div className="text-sm">
+      <button
+        type="button"
+        onClick={onOpenDetails}
+        className="flex items-center gap-2 text-left"
+      >
+        <img src="/matcha.svg" alt="" className="h-7 w-7 shrink-0" />
+        <span className="text-base font-bold text-primary">{spotName}</span>
+      </button>
+    </div>
+  )
 }
 
 function MapBoundsController({ bayAreaBounds }: { bayAreaBounds: LatLngExpression[] }) {
@@ -30,10 +55,35 @@ function MapBoundsController({ bayAreaBounds }: { bayAreaBounds: LatLngExpressio
   return null
 }
 
+function MapSelectionController({
+  selectedSpot,
+  markerRefs,
+  spotsLength,
+}: {
+  selectedSpot: number | null
+  markerRefs: MutableRefObject<Record<number, L.Marker | null>>
+  spotsLength: number
+}) {
+  const map = useMap()
+
+  useEffect(() => {
+    if (selectedSpot == null) return
+    const marker = markerRefs.current[selectedSpot]
+    if (!marker) return
+    marker.openPopup()
+    map.panTo(marker.getLatLng(), { animate: true })
+  }, [map, markerRefs, selectedSpot, spotsLength])
+
+  return null
+}
+
 export default function LeafletMap({ selectedSpot, onSpotClick, displayMode, uid }: LeafletMapProps) {
   const [myRankings, setMyRankings] = useState<Ranking[]>([])
   const [globalTop10, setGlobalTop10] = useState<GlobalSpot[]>([])
   const [loading, setLoading] = useState(false)
+  const [detailsOpen, setDetailsOpen] = useState(false)
+  const [activeSpot, setActiveSpot] = useState<{ name: string; location: string; rank: number } | null>(null)
+  const markerRefs = useRef<Record<number, L.Marker | null>>({})
 
   // Subscribe to user's rankings when in "my" mode
   useEffect(() => {
@@ -77,6 +127,11 @@ export default function LeafletMap({ selectedSpot, onSpotClick, displayMode, uid
     ? myRankings.filter(r => r.lat != null && r.lng != null)
     : globalTop10.filter(s => s.lat != null && s.lng != null)
 
+  const openSpotDetails = (name: string, location: string, rank: number) => {
+    setActiveSpot({ name, location, rank })
+    setDetailsOpen(true)
+  }
+
   return (
     <div className="relative z-0 h-full min-h-[400px]">
       <MapContainer
@@ -87,6 +142,11 @@ export default function LeafletMap({ selectedSpot, onSpotClick, displayMode, uid
         maxZoom={16}
       >
         <MapBoundsController bayAreaBounds={bayAreaBounds} />
+        <MapSelectionController
+          selectedSpot={selectedSpot}
+          markerRefs={markerRefs}
+          spotsLength={spotsToDisplay.length}
+        />
         <TileLayer
           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
           attribution='&copy; <a href="https://carto.com/about-carto/">CARTO</a>'
@@ -112,31 +172,38 @@ export default function LeafletMap({ selectedSpot, onSpotClick, displayMode, uid
             <Marker
               key={`${spotName}-${spotLocation}-${index}`}
               position={[lat, lng]}
+              icon={matchaCupIcon}
+              ref={(marker) => {
+                markerRefs.current[spotRank] = marker
+              }}
               eventHandlers={{
                 click: () => onSpotClick(spotRank),
               }}
             >
-              <Popup>
-                <div className="text-sm">
-                  <p className="font-bold text-primary">#{spotRank} {spotName}</p>
-                  <p className="text-xs text-muted-foreground">{spotLocation}</p>
-                  {displayMode === "global" && (
-                    <>
-                      <p className="text-xs text-muted-foreground mt-1">
-                                        {(spot as GlobalSpot).count} users ranked
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {/* avg rank removed for global spot */}
-                      </p>
-                    </>
-                  )}
-                </div>
+              <Popup className="matcha-popup" minWidth={260} maxWidth={320}>
+                <MapPopupContent
+                  spotName={spotName}
+                  onOpenDetails={() => openSpotDetails(spotName, spotLocation, spotRank)}
+                />
               </Popup>
             </Marker>
           )
         })}
       </MapContainer>
+
+      <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
+        <DialogContent className="max-w-md rounded-2xl border-2 border-primary/40 bg-gradient-to-b from-[#f6fff3] to-white p-5 shadow-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-primary">
+              <img src="/matcha.svg" alt="" className="h-6 w-6" />
+              {activeSpot ? `#${activeSpot.rank} ${activeSpot.name}` : "Matcha Spot"}
+            </DialogTitle>
+          </DialogHeader>
+          {activeSpot && (
+            <p className="text-sm text-muted-foreground leading-relaxed">{activeSpot.location}</p>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
-

@@ -20,41 +20,23 @@ export function Header() {
   }, [])
 
   return (
-    <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+    <header className="sticky top-0 z-50 border-b border-[#254427] bg-[#315a33]/95 text-[#f2fff2] backdrop-blur-md">
+      <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-8 py-4 md:px-12">
         <Link href="/" className="flex items-center gap-2 group">
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground transition-transform group-hover:scale-110">
             <Leaf className="h-5 w-5" />
           </div>
-          <span className="text-xl font-bold tracking-tight" style={{ fontFamily: "var(--font-display)" }}>
-            matcha map
+          <span className="text-xl font-bold tracking-tight text-[#f7fff7]" style={{ fontFamily: "var(--font-display)" }}>
+            mytcha
           </span>
         </Link>
-        <nav className="flex items-center gap-6">
-          <a
-            href="#top10"
-            className="text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
-          >
-            Top 10
-          </a>
-          <a
-            href="#map"
-            className="text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
-          >
-            Map
-          </a>
-          <a
-            href="#about"
-            className="text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
-          >
-            About
-          </a>
+        <nav className="flex items-center">
           {user ? (
             <Button
               variant="outline"
               size="sm"
               onClick={() => signOut(auth)}
-              className="gap-2"
+              className="gap-2 border-[#d9f0d9] bg-transparent text-[#f2fff2] hover:bg-[#3f6f41] hover:text-white"
             >
               <LogOut className="size-4" />
               Sign Out
@@ -63,7 +45,7 @@ export function Header() {
             <Button
               size="sm"
               onClick={() => setSignInOpen(true)}
-              className="gap-2"
+              className="gap-2 bg-[#f2fff2] text-[#315a33] hover:bg-white"
             >
               <LogIn className="size-4" />
               Sign In

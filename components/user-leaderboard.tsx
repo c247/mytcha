@@ -1,8 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { matchaSpots, MatchaSpot } from "@/lib/matcha-spots"
-import { Grip, Trash2, MapPin, Save, AlertCircle, CheckCircle } from "lucide-react"
+import { Grip, Trash2, MapPin, AlertCircle, CheckCircle, Sparkles, Save } from "lucide-react"
 import {
   subscribeMyRankings,
   addRanking,
@@ -13,6 +12,8 @@ import {
 } from "@/lib/firebase-rankings"
 import { GeoSearchInput } from "@/components/geo-search-input"
 import type { GeoSearchResult } from "@/lib/geo-search"
+import { getOrCreateCupColors } from "@/lib/pastel-cups"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 interface UserLeaderboardProps {
   selectedSpot: number | null
@@ -20,59 +21,98 @@ interface UserLeaderboardProps {
   uid: string
 }
 
+function getCupTint(color: string) {
+  const tintMap: Record<string, string> = {
+    "#FFE5EC": "hue-rotate(-18deg) saturate(0.85) brightness(1.08)",
+    "#FDE2E4": "hue-rotate(-6deg) saturate(0.9) brightness(1.08)",
+    "#FEECD2": "hue-rotate(8deg) saturate(0.9) brightness(1.08)",
+    "#FFF1B6": "hue-rotate(20deg) saturate(0.85) brightness(1.08)",
+    "#DFF7E2": "hue-rotate(48deg) saturate(0.9) brightness(1.05)",
+    "#D9F2FF": "hue-rotate(88deg) saturate(0.9) brightness(1.04)",
+    "#E3E0FF": "hue-rotate(130deg) saturate(0.95) brightness(1.03)",
+    "#F0E4FF": "hue-rotate(154deg) saturate(0.95) brightness(1.04)",
+    "#FFDFF5": "hue-rotate(174deg) saturate(0.95) brightness(1.05)",
+  }
+
+  return tintMap[color] ?? "hue-rotate(24deg) saturate(0.9) brightness(1.06)"
+}
+
 export function UserLeaderboard({ selectedSpot, onSpotClick, uid }: UserLeaderboardProps) {
   const [userRankings, setUserRankings] = useState<Ranking[]>([])
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
-  const [showAddMenu, setShowAddMenu] = useState(false)
+  const [hasUnsavedOrder, setHasUnsavedOrder] = useState(false)
   const [showGeoSearch, setShowGeoSearch] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [cupColors, setCupColors] = useState<Record<string, string>>({})
 
   // Subscribe to user rankings from Firebase
   useEffect(() => {
     setMounted(true)
     const unsubscribe = subscribeMyRankings(uid, (rankings) => {
-      setUserRankings(rankings)
+      if (!hasUnsavedOrder) {
+        setUserRankings(rankings)
+      }
     })
     return () => unsubscribe()
-  }, [uid])
+  }, [uid, hasUnsavedOrder])
+
+  useEffect(() => {
+    const keys = userRankings.map((r) => r.id)
+    setCupColors(getOrCreateCupColors(`mytcha-cups-${uid}`, keys))
+  }, [uid, userRankings])
 
   const handleDragStart = (index: number) => {
+    setError(null)
+    setSuccess(null)
     setDraggedIndex(index)
   }
 
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
   }
 
-  const handleDropOnItem = async (dropIndex: number) => {
-    if (draggedIndex === null || draggedIndex === dropIndex) return
+  const handleDragOverItem = (overIndex: number) => {
+    if (draggedIndex === null || draggedIndex === overIndex) return
 
     const newRankings = [...userRankings]
     const draggedItem = newRankings[draggedIndex]
     newRankings.splice(draggedIndex, 1)
-    newRankings.splice(dropIndex, 0, draggedItem)
+    newRankings.splice(overIndex, 0, draggedItem)
 
-    // Update ranking positions in Firebase
+    setUserRankings(newRankings)
+    setDraggedIndex(overIndex)
+    setHasUnsavedOrder(true)
+  }
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null)
+  }
+
+  const handleSaveOrder = async () => {
+    if (!hasUnsavedOrder) return
     setLoading(true)
     setError(null)
     setSuccess(null)
     try {
-      for (let i = 0; i < newRankings.length; i++) {
-        await updateRanking(uid, newRankings[i].id, { ranking: i + 1 })
+      for (let i = 0; i < userRankings.length; i++) {
+        if (userRankings[i].ranking !== i + 1) {
+          await updateRanking(uid, userRankings[i].id, { ranking: i + 1 })
+        }
       }
-      setSuccess("Changes saved!")
+      setUserRankings((prev) => prev.map((ranking, i) => ({ ...ranking, ranking: i + 1 })))
+      setHasUnsavedOrder(false)
+      setSuccess("Order saved!")
       setTimeout(() => setSuccess(null), 3000)
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : "Failed to update rankings"
+      const errorMsg = err instanceof Error ? err.message : "Failed to save order"
       setError(errorMsg)
-      console.error("Failed to update rankings:", err)
+      console.error("Failed to save order:", err)
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
-    setDraggedIndex(null)
   }
 
   const handleDeleteRanking = async (rankingId: string) => {
@@ -106,32 +146,6 @@ export function UserLeaderboard({ selectedSpot, onSpotClick, uid }: UserLeaderbo
     setLoading(false)
   }
 
-  const handleAddSpotFromMatcha = async (spot: MatchaSpot) => {
-    if (!userRankings.find((r) => r.name === spot.name && r.location === spot.location)) {
-      setLoading(true)
-      setError(null)
-      setSuccess(null)
-      try {
-        const rankingData: RankingData = {
-          name: spot.name,
-          location: spot.location,
-          ranking: userRankings.length + 1,
-          lat: spot.lat,
-          lng: spot.lng,
-        }
-        await addRanking(uid, rankingData)
-        setSuccess("Spot added! Changes saved automatically.")
-        setTimeout(() => setSuccess(null), 3000)
-      } catch (err) {
-        const errorMsg = err instanceof Error ? err.message : "Failed to add ranking"
-        setError(errorMsg)
-        console.error("Failed to add ranking:", err)
-      }
-      setLoading(false)
-    }
-    setShowAddMenu(false)
-  }
-
   const handleAddSpotFromGeoSearch = async (result: GeoSearchResult) => {
     if (!userRankings.find((r) => r.name === result.name && r.location === result.location)) {
       setLoading(true)
@@ -158,9 +172,6 @@ export function UserLeaderboard({ selectedSpot, onSpotClick, uid }: UserLeaderbo
     }
   }
 
-  // No curated spots - users add via geo search
-  const availableSpots: MatchaSpot[] = []
-
   if (!mounted) return null
 
   return (
@@ -181,9 +192,22 @@ export function UserLeaderboard({ selectedSpot, onSpotClick, uid }: UserLeaderbo
 
       {/* Header */}
       <div className="border-b border-border p-3 bg-accent/10">
-        <p className="text-xs text-muted-foreground">
-          {userRankings.length} spots · Drag to reorder
-        </p>
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-xs text-muted-foreground">
+            {userRankings.length} spots · Drag to reorder
+          </p>
+          <button
+            onClick={handleSaveOrder}
+            disabled={!hasUnsavedOrder || loading}
+            className="inline-flex items-center gap-1 rounded-md bg-primary px-2 py-1 text-[11px] font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Save className="h-3 w-3" />
+            Save
+          </button>
+        </div>
+        {hasUnsavedOrder && (
+          <p className="mt-1 text-[11px] text-primary/90">Order changes are local until you save.</p>
+        )}
       </div>
 
       {/* Rankings List */}
@@ -193,7 +217,7 @@ export function UserLeaderboard({ selectedSpot, onSpotClick, uid }: UserLeaderbo
             <div>
               <p className="text-sm text-muted-foreground">No rankings yet</p>
               <button
-                onClick={() => setShowAddMenu(!showAddMenu)}
+                onClick={() => setShowGeoSearch(true)}
                 className="text-xs text-primary hover:underline font-semibold mt-2"
               >
                 Add your first spot
@@ -208,9 +232,11 @@ export function UserLeaderboard({ selectedSpot, onSpotClick, uid }: UserLeaderbo
                 draggable
                 onDragStart={() => handleDragStart(index)}
                 onDragOver={handleDragOver}
-                onDrop={() => handleDropOnItem(index)}
+                onDragEnter={() => handleDragOverItem(index)}
+                onDragEnd={handleDragEnd}
+                onDrop={handleDragEnd}
                 className={`flex items-center gap-2 p-3 rounded-lg transition-all duration-200 cursor-move ${
-                  draggedIndex === index ? "opacity-50 bg-accent/30" : "hover:bg-accent/50"
+                  draggedIndex === index ? "scale-[1.01] bg-accent/30 shadow-md" : "hover:bg-accent/50"
                 } ${
                   selectedSpot === ranking.ranking
                     ? "bg-primary/20 border border-primary"
@@ -219,27 +245,33 @@ export function UserLeaderboard({ selectedSpot, onSpotClick, uid }: UserLeaderbo
               >
                 <Grip className="h-4 w-4 text-muted-foreground flex-shrink-0" />
 
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/30 text-xs font-bold text-primary flex-shrink-0">
-                  {ranking.ranking}
+                <div
+                  className="relative flex h-10 w-10 items-center justify-center flex-shrink-0"
+                >
+                  <img
+                    src="/matcha.svg"
+                    alt=""
+                    className="h-9 w-9 drop-shadow-[0_1px_2px_rgba(0,0,0,0.25)]"
+                    style={{ filter: getCupTint(cupColors[ranking.id] ?? "#FFE5EC") }}
+                  />
+                  <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground shadow">
+                    {index + 1}
+                  </span>
                 </div>
 
                 <button
                   onClick={() => onSpotClick(ranking.ranking)}
                   className="flex-1 text-left min-w-0"
                 >
-                  <p className="font-semibold text-foreground text-sm truncate">
-                    {ranking.name}
-                  </p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {ranking.location}
-                  </p>
+                  <p className="font-semibold text-foreground text-sm truncate">{ranking.name}</p>
                 </button>
 
                 <button
                   onClick={() => handleDeleteRanking(ranking.id)}
-                  disabled={loading}
+                  disabled={loading || hasUnsavedOrder}
                   className="p-1.5 text-muted-foreground hover:text-destructive transition-colors flex-shrink-0 disabled:opacity-50"
                   aria-label="Delete ranking"
+                  title={hasUnsavedOrder ? "Save order before removing spots" : "Delete ranking"}
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -251,36 +283,36 @@ export function UserLeaderboard({ selectedSpot, onSpotClick, uid }: UserLeaderbo
 
       {/* Add button */}
       <div className="border-t border-border p-3 bg-accent/20 space-y-3">
-        {showGeoSearch ? (
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-muted-foreground">Add by location search</span>
-              <button
-                onClick={() => setShowGeoSearch(false)}
-                className="text-xs text-muted-foreground hover:text-foreground"
-              >
-                Cancel
-              </button>
-            </div>
+        <button
+          onClick={() => setShowGeoSearch(true)}
+          disabled={loading || hasUnsavedOrder}
+          className="w-full flex items-center justify-center gap-2 rounded-lg bg-primary text-primary-foreground px-3 py-2 text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50"
+        >
+          <MapPin className="h-4 w-4" />
+          {hasUnsavedOrder ? "Save Order First" : "Add Spot"}
+        </button>
+      </div>
+
+      <Dialog open={showGeoSearch} onOpenChange={setShowGeoSearch}>
+        <DialogContent className="max-w-md rounded-2xl border-2 border-primary/40 bg-gradient-to-b from-[#f6fff3] to-white p-5 shadow-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-primary">
+              <Sparkles className="h-4 w-4" />
+              Add a Matcha Spot
+            </DialogTitle>
+            <DialogDescription>
+              Pick your next favorite cafe.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="rounded-xl border border-primary/20 bg-white/80 p-3">
             <GeoSearchInput
               onSelect={handleAddSpotFromGeoSearch}
               onCancel={() => setShowGeoSearch(false)}
               disabled={loading}
             />
           </div>
-        ) : (
-          <>
-            <button
-              onClick={() => setShowGeoSearch(true)}
-              disabled={loading}
-              className="w-full flex items-center justify-center gap-2 rounded-lg bg-primary text-primary-foreground px-3 py-2 text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50"
-            >
-              <MapPin className="h-4 w-4" />
-              Add Spot (Geo Search)
-            </button>
-          </>
-        )}
-      </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

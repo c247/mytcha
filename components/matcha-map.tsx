@@ -45,22 +45,23 @@ export function MatchaMap() {
   if (!mounted) return null
 
   return (
-    <div className="w-full h-full min-h-[60vh] flex">
-      {/* Map on the left - 2/3 width */}
-      <div className="flex-1 min-h-0 min-w-0" style={{ flex: "2" }}>
-        <LeafletMap selectedSpot={selectedSpot} onSpotClick={handleSpotClick} displayMode={displayMode} uid={uid} />
-      </div>
+    <div className="h-full min-h-0 w-full px-8 py-4 md:px-12 md:py-6">
+      <div className="grid h-full min-h-[70vh] grid-cols-1 gap-5 lg:grid-cols-[2fr_1fr]">
+        {/* Map panel */}
+        <div className="min-h-[420px] overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+          <LeafletMap selectedSpot={selectedSpot} onSpotClick={handleSpotClick} displayMode={displayMode} uid={uid} />
+        </div>
 
-      {/* Combined Leaderboard on the right - 1/3 width */}
-      <div className="border-l border-border overflow-hidden bg-card" style={{ flex: "1" }}>
-        <CombinedLeaderboard
-          selectedSpot={selectedSpot}
-          onSpotClick={handleSpotClick}
-          uid={uid}
-          onDisplayModeChange={setDisplayMode}
-        />
+        {/* Combined leaderboard panel */}
+        <div className="min-h-[420px] overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+          <CombinedLeaderboard
+            selectedSpot={selectedSpot}
+            onSpotClick={handleSpotClick}
+            uid={uid}
+            onDisplayModeChange={setDisplayMode}
+          />
+        </div>
       </div>
     </div>
   )
 }
-

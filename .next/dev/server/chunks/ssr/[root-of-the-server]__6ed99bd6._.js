@@ -74,8 +74,8 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$vercel$2f$
 ;
 ;
 const metadata = {
-    title: 'Matcha Map – Best Matcha in the Bay Area',
-    description: 'Discover the top matcha spots in SF, Oakland, Berkeley, San Jose and beyond. Curated list and interactive Bay Area map.',
+    title: 'mytcha – Best Matcha in the Bay Area',
+    description: 'Discover top matcha spots in SF, Oakland, Berkeley, San Jose and beyond with mytcha.',
     icons: {
         icon: [
             {

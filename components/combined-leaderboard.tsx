@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { matchaSpots } from "@/lib/matcha-spots"
 import { UserLeaderboard } from "./user-leaderboard"
 import { GlobalLeaderboard, type GlobalLeaderboardRef } from "./leaderboard"
 
@@ -53,7 +52,7 @@ export function CombinedLeaderboard({
               : "bg-transparent text-foreground border-b-transparent hover:bg-accent/30"
           }`}
         >
-          Global Top 10
+          Bay Top 10
         </button>
       </div>
 
