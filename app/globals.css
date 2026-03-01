@@ -1,0 +1,199 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: #f0f7f0;
+  --foreground: #2d4a2d;
+  --card: #ffffff;
+  --card-foreground: #2d4a2d;
+  --popover: #ffffff;
+  --popover-foreground: #2d4a2d;
+  --primary: #6b9e6b;
+  --primary-foreground: #ffffff;
+  --secondary: #e8f5e8;
+  --secondary-foreground: #3a6b3a;
+  --muted: #e0ede0;
+  --muted-foreground: #5a7d5a;
+  --accent: #d4ecd4;
+  --accent-foreground: #2d4a2d;
+  --destructive: #e57373;
+  --destructive-foreground: #ffffff;
+  --border: #c8e0c8;
+  --input: #c8e0c8;
+  --ring: #6b9e6b;
+  --chart-1: #6b9e6b;
+  --chart-2: #8bb88b;
+  --chart-3: #a8d4a8;
+  --chart-4: #c8e0c8;
+  --chart-5: #4a7d4a;
+  --radius: 1rem;
+  --sidebar: #f0f7f0;
+  --sidebar-foreground: #2d4a2d;
+  --sidebar-primary: #6b9e6b;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e8f5e8;
+  --sidebar-accent-foreground: #2d4a2d;
+  --sidebar-border: #c8e0c8;
+  --sidebar-ring: #6b9e6b;
+}
+
+.dark {
+  --background: #1a2e1a;
+  --foreground: #d4ecd4;
+  --card: #243524;
+  --card-foreground: #d4ecd4;
+  --popover: #243524;
+  --popover-foreground: #d4ecd4;
+  --primary: #8bb88b;
+  --primary-foreground: #1a2e1a;
+  --secondary: #2d4a2d;
+  --secondary-foreground: #d4ecd4;
+  --muted: #2d4a2d;
+  --muted-foreground: #8bb88b;
+  --accent: #2d4a2d;
+  --accent-foreground: #d4ecd4;
+  --destructive: #e57373;
+  --destructive-foreground: #ffffff;
+  --border: #3a5c3a;
+  --input: #3a5c3a;
+  --ring: #6b9e6b;
+  --chart-1: #8bb88b;
+  --chart-2: #6b9e6b;
+  --chart-3: #a8d4a8;
+  --chart-4: #4a7d4a;
+  --chart-5: #c8e0c8;
+  --sidebar: #1a2e1a;
+  --sidebar-foreground: #d4ecd4;
+  --sidebar-primary: #8bb88b;
+  --sidebar-primary-foreground: #1a2e1a;
+  --sidebar-accent: #2d4a2d;
+  --sidebar-accent-foreground: #d4ecd4;
+  --sidebar-border: #3a5c3a;
+  --sidebar-ring: #6b9e6b;
+}
+
+@theme inline {
+  --font-sans: var(--font-sans, 'Nunito'), 'Nunito', sans-serif;
+  --font-display: var(--font-display, 'Quicksand'), 'Quicksand', sans-serif;
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Leaflet map customization */
+.leaflet-container {
+  background-color: var(--background);
+  font-family: inherit;
+}
+
+.leaflet-popup-content-wrapper {
+  background-color: var(--card);
+  color: var(--foreground);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.leaflet-popup-tip {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+}
+
+.leaflet-popup-content {
+  margin: 0;
+  width: auto !important;
+}
+
+.leaflet-popup-content p {
+  margin: 2px 0;
+}
+
+.leaflet-control-zoom {
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.leaflet-control-zoom a {
+  background-color: var(--card);
+  color: var(--foreground);
+  border-bottom: 1px solid var(--border);
+  width: 2.25rem !important;
+  height: 2.25rem !important;
+  line-height: 2.25rem !important;
+  font-size: 1.2rem;
+}
+
+.leaflet-control-zoom a:hover {
+  background-color: var(--accent);
+}
+
+.leaflet-control-zoom a:first-child {
+  border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.leaflet-control-zoom a:last-child {
+  border-radius: 0 0 0.5rem 0.5rem;
+  border-bottom: none;
+}
+
+.leaflet-control-attribution {
+  background-color: rgba(255, 255, 255, 0.8);
+  font-size: 0.75rem;
+  padding: 4px 8px;
+}
+
+.dark .leaflet-control-attribution {
+  background-color: rgba(36, 53, 36, 0.8);
+  color: var(--foreground);
+}
+
+/* Custom marker styling */
+.leaflet-marker-icon {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}

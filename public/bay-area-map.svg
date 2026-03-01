@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 400" fill="none">
+  <defs>
+    <linearGradient id="landGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#bbf7d0"/>
+      <stop offset="100%" stop-color="#86efac"/>
+    </linearGradient>
+    <linearGradient id="waterGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#bae6fd"/>
+      <stop offset="100%" stop-color="#7dd3fc"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <!-- Bay / water (simplified SF Bay shape) -->
+  <path id="water" d="M 120 120 L 380 115 L 400 200 L 350 280 L 200 300 L 100 250 L 80 180 Z" fill="url(#waterGrad)" stroke="#38bdf8" stroke-width="2"/>
+  <!-- North Bay land -->
+  <path d="M 0 0 L 500 0 L 500 110 L 385 115 L 120 120 L 80 180 L 50 120 L 0 80 Z" fill="url(#landGrad)" stroke="#4ade80" stroke-width="2" filter="url(#softShadow)"/>
+  <!-- Peninsula / SF -->
+  <path d="M 120 120 L 125 200 L 180 280 L 200 300 L 150 320 L 100 300 L 90 250 L 100 250 L 100 180 Z" fill="url(#landGrad)" stroke="#4ade80" stroke-width="2" filter="url(#softShadow)"/>
+  <!-- East Bay -->
+  <path d="M 200 300 L 350 280 L 400 200 L 500 210 L 500 400 L 200 400 L 180 320 Z" fill="url(#landGrad)" stroke="#4ade80" stroke-width="2" filter="url(#softShadow)"/>
+  <!-- South Bay -->
+  <path d="M 150 320 L 180 320 L 200 400 L 0 400 L 0 80 L 50 120 L 80 180 L 100 180 L 100 300 Z" fill="url(#landGrad)" stroke="#4ade80" stroke-width="2" filter="url(#softShadow)"/>
+</svg>
